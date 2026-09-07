@@ -7,6 +7,7 @@ permissions:
   contents: read
 
 env:
+  SOLUTION_PATH: '${{ github.workspace }}\\Files.slnx'
   APP_PROJECT_PATH: '${{ github.workspace }}\\src\\Files.App\\Files.App.csproj'
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
 
       - name: Restore Files
         run: |
-          msbuild src\Files.App\Files.App.csproj `
+          msbuild $env:SOLUTION_PATH `
             -t:Restore `
             -p:Platform=$env:ARCHITECTURE `
             -p:Configuration=$env:CONFIGURATION `
