@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   SOLUTION_PATH: '${{ github.workspace }}\\Files.slnx'
@@ -71,3 +71,23 @@ jobs:
         with:
           name: 'Files-MSIX-${{ env.ARCHITECTURE }}'
           path: ${{ github.workspace }}\artifacts\AppxPackages\*
+
+      - name: List package files
+        shell: pwsh
+        run: |
+          Get-ChildItem "${{ github.workspace }}\artifacts\AppxPackages\" -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v1.0.0-${{ github.run_id }}
+        shell: pwsh
+        run: |
+          $release = gh release create $env:TAG `
+            "${{ github.workspace }}\artifacts\AppxPackages\*.msix" `
+            "${{ github.workspace }}\artifacts\AppxPackages\*.msixbundle" `
+            --repo ${{ github.repository }} `
+            --title "Files Build (${{ env.ARCHITECTURE }})" `
+            --notes "Automated build of Files for ${{ env.ARCHITECTURE }}." `
+            --latest
+          Write-Host "Release created: $release"
