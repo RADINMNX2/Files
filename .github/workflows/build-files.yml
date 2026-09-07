@@ -83,9 +83,11 @@ jobs:
           TAG: v1.0.0-${{ github.run_id }}
         shell: pwsh
         run: |
+          $files = @(Get-ChildItem "${{ github.workspace }}\artifacts\AppxPackages\" -Recurse -File | ForEach-Object { $_.FullName })
+          Write-Host "Uploading:"
+          $files | ForEach-Object { Write-Host "  $_" }
           $release = gh release create $env:TAG `
-            "${{ github.workspace }}\artifacts\AppxPackages\*.msix" `
-            "${{ github.workspace }}\artifacts\AppxPackages\*.msixbundle" `
+            $files `
             --repo ${{ github.repository }} `
             --title "Files Build (${{ env.ARCHITECTURE }})" `
             --notes "Automated build of Files for ${{ env.ARCHITECTURE }}." `
